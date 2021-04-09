@@ -1,8 +1,4 @@
-export const fonts = {
-  body: "monospace",
-  heading: "Roboto",
-  monospace: "monospace",
-};
+
 
 export const fontWeights = {
   regular: 400,
