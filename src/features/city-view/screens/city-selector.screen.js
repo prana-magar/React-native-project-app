@@ -39,6 +39,7 @@ export const CitySelectorScreen = () => {
       
       setpathToCurrentLevel((prev) => {
           if (prev[prev.length - 1] == selectedValue){
+              updateNodes();
               return prev
           }
           else{
@@ -46,21 +47,25 @@ export const CitySelectorScreen = () => {
           } 
         });
   }
+
+  const updateNodes = () => {
+    let nodes = getAllChildToPath(pathToCurrentLevel);
+    console.log(nodes);
+    setcurrentNodes((prevNodes) => {
+      console.log("Prev nodes" + JSON.stringify(prevNodes));
+      console.log("New nodes" + JSON.stringify(nodes));
+
+      if (JSON.stringify(prevNodes) == JSON.stringify(nodes)) {
+        console.log("inside");
+        // we got back same nodes that means we are in lead node. Save the selection
+        updateLeafSelection();
+      }
+      return nodes;
+    });
+  }
   
   useEffect(() => {
-      let nodes = getAllChildToPath(pathToCurrentLevel);
-      console.log(nodes)
-      setcurrentNodes( prevNodes => {
-          console.log("Prev nodes" + JSON.stringify(prevNodes));
-            console.log("New nodes" + JSON.stringify(nodes));
-
-          if (JSON.stringify(prevNodes) == JSON.stringify(nodes)) {
-            console.log("inside");
-            // we got back same nodes that means we are in lead node. Save the selection
-            updateLeafSelection();
-          }
-          return nodes
-      });
+      updateNodes()
   }, [pathToCurrentLevel]);
 
   return (
