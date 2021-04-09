@@ -1,12 +1,22 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import CustomTheme from './src/infrastructure/theme/index'
+import { StyleSheet,  View } from 'react-native';
+import { theme } from "./src/infrastructure/theme";
+import { ThemeProvider } from "styled-components/native";
+import  {Text} from "./src/components/typography/text.component"
 
 export default function App() {
   return (
-    <View style={styles.container}>
-      <Text >Teest</Text>
-    </View>
+
+   <>
+    <ThemeProvider theme={theme}>
+        <View style={styles.container}>
+        
+          <Text variant="error">Helllo</Text>
+
+        </View>
+        
+    </ThemeProvider>
+   </>
   );
 }
 
