@@ -7,7 +7,8 @@ import {
   getAllCountries,
   getAllProvince,
   getAllCities,
-  toggleCitySelection
+  toggleLeafSelection,
+  getAllChildToPath,
 } from "../../../services/dataRepository";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { SelectorNavigation } from "../components/selector-navigation.component"
@@ -21,52 +22,54 @@ export const CitySelectorScreen = () => {
   const [displayOptions, setDisplayOptions] = useState(getAllCountries());
   const [currentCountry, setCurrentCountry] = useState(null)
   const [currentProvince, setCurrentProvince] = useState(null)
+
+  const [pathToCurrentLevel, setpathToCurrentLevel] = useState([])
+  const [currentNodes, setcurrentNodes] = useState([])
  
   useEffect(() => {
-      setCurrentLevel(1)
+      setpathToCurrentLevel([])
      
   }, [])
 
-  const updateCitySelection = (city) => {
-        toggleCitySelection(currentCountry, currentProvince, city);
+  const updateLeafSelection = () => {
+        toggleLeafSelection(pathToCurrentLevel);
   }
 
   const handleItemClick = (selectedValue) =>{
-      switch(currentLevel){
-          case 1:
-              setCurrentCountry(selectedValue);
-              setCurrentLevel(currentLevel + 1);
-              break;
-            
-          case 2:
-              setCurrentProvince(selectedValue);
-              setCurrentLevel(currentLevel + 1);
-              break;
-
-          default:
-              updateCitySelection(selectedValue)
-      }
+      
+      setpathToCurrentLevel((prev) => {
+          if (prev[prev.length - 1] == selectedValue){
+              return prev
+          }
+          else{
+              return [...prev, selectedValue];
+          } 
+        });
   }
   
   useEffect(() => {
-      if(currentLevel === 1) {
-            setDisplayOptions(getAllCountries());
-      }
-      else if(currentLevel === 2){
-          setDisplayOptions(getAllProvince(currentCountry));
-      }
-      else{
-        setDisplayOptions(getAllCities(currentCountry,currentProvince))
-      }
-    
-  }, [currentLevel]);
+      let nodes = getAllChildToPath(pathToCurrentLevel);
+      console.log(nodes)
+      setcurrentNodes( prevNodes => {
+          console.log("Prev nodes" + JSON.stringify(prevNodes));
+            console.log("New nodes" + JSON.stringify(nodes));
+
+          if (JSON.stringify(prevNodes) == JSON.stringify(nodes)) {
+            console.log("inside");
+            // we got back same nodes that means we are in lead node. Save the selection
+            updateLeafSelection();
+          }
+          return nodes
+      });
+  }, [pathToCurrentLevel]);
 
   return (
     <SafeArea>
       <Text variant="label"> City Selector</Text>
       <SelectorNavigation />
       <Text> Choose a country</Text>
-      <OptionLister items={displayOptions} onClick={handleItemClick} />
+      <Text> {JSON.stringify()}</Text>
+      <OptionLister items={currentNodes} onClick={handleItemClick} />
     </SafeArea>
   );
 };

@@ -1,5 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
+import { RectButton } from "react-native-gesture-handler";
+import { URLS } from "./urls";
 export const cityData = {
   countries: [
     {
@@ -31,6 +32,38 @@ export const cityData = {
   ],
 };
 
+export const treeData = [{
+  name: "Earth",
+  children: [
+    {
+      name: "Canada",
+      children: [
+        {
+          name: "Ontario",
+          children: [
+            {
+              name: "Toronto",
+            },
+          ],
+        },
+      ],
+    },
+    {
+      name: "Nepal",
+      children: [
+        {
+          name: "Bagmati",
+          children: [
+            {
+              name: "Kathmandu",
+            },
+          ],
+        },
+      ],
+    },
+  ],
+}];
+
 export const getAllCountries = () => {
   let countries = [];
   cityData["countries"].map((countryObj) => countries.push(countryObj.name));
@@ -52,7 +85,7 @@ export const getAllProvince = (country) => {
   }
 };
 
-export const getAllCities = (country, province) => {
+export const getAllLeaf = (country, province) => {
   let countryObj = cityData["countries"].find(
     (currCountry) => currCountry.name == country
   );
@@ -73,17 +106,16 @@ export const getAllCities = (country, province) => {
   return cities;
 };
 
-const generateUniqueKey = (country, province, city) => {
-  return `${country}-${province}-${city}`;
+const generateUniqueKey = (pathToCurrentLeaf) => {
+  return pathToCurrentLeaf.join(">");
 };
 
-export const isCityPresent = async (country, province, city) => {
+export const isLeafPresent = async (leafKey) => {
   try {
-    const selectedCities = await AsyncStorage.getItem("selectedCities");
-    const selectedCitiesArray = JSON.parse(selectedCities);
-    const cityKey = generateUniqueKey(country, province, city);
-    let cityKeyFound = selectedCitiesArray.find((key) => key === cityKey);
-    if (cityKeyFound == null) {
+    const selectedLeafKeys = await AsyncStorage.getItem("selectedLeaf");
+    const selectedLeafKeysArray = JSON.parse(selectedLeafKeys);
+    let leafKeyFound = selectedLeafKeysArray.find((key) => key === leafKey);
+    if (leafKeyFound == null) {
       return false;
     } else {
       return true;
@@ -93,68 +125,114 @@ export const isCityPresent = async (country, province, city) => {
   }
 };
 
-const removeCity = async (country, province, city) => {
+const removeLeaf = async (leafKey) => {
   try {
-    const selectedCities = await AsyncStorage.getItem("selectedCities");
-    const selectedCitiesArray = JSON.parse(selectedCities);
-    const cityKey = generateUniqueKey(country, province, city);
+    const selectedLeafKeys = await AsyncStorage.getItem("selectedLeaf");
+    const selectedLeafKeysArray = JSON.parse(selectedLeafKeys);
 
-    const filteredCitiesArray = selectedCitiesArray.filter(
-      (curCityKey) => curCityKey != cityKey
+    const filteredLeafArray = selectedLeafKeysArray.filter(
+      (curLeafKey) => curLeafKey != leafKey
     );
-    console.log(filteredCitiesArray);
     await AsyncStorage.setItem(
-      "selectedCities",
-      JSON.stringify(filteredCitiesArray)
+      "selectedLeaf",
+      JSON.stringify(filteredLeafArray)
     );
   } catch (e) {
     console.log(e);
   }
 };
 
-const addCity = async (country, province, city) => {
+const addLeaf = async (leafKey) => {
+  if (leafKey === null)
+  {
+      return
+  }
+    try {
+      const selectedLeafKeys = await AsyncStorage.getItem("selectedLeaf");
+      let selectedLeafKeysArray = [];
+      if (selectedLeafKeys === null) {
+        selectedLeafKeysArray = [];
+      } else {
+        selectedLeafKeysArray = JSON.parse(selectedLeafKeys);
+      }
+
+      const newSelectedLeafArray = [...selectedLeafKeysArray, leafKey];
+      console.log("added: " + JSON.stringify(newSelectedLeafArray));
+      await AsyncStorage.setItem(
+        "selectedLeaf",
+        JSON.stringify(newSelectedLeafArray)
+      );
+    } catch (e) {
+      console.log(e);
+    }
+};
+
+export const toggleLeafSelection = async (pathToCurrenLeaf) => {
+ const leafKey = generateUniqueKey(pathToCurrenLeaf);
+  const isAlreadySaved = await isLeafPresent(leafKey);
+  if (isAlreadySaved) {
+    removeLeaf(leafKey);
+  } else {
+    addLeaf(leafKey);
+  }
+};
+
+export const getAllSelectedLeaf = async () => {
   try {
-    const selectedCities = await AsyncStorage.getItem("selectedCities");
-    let selectedCitiesArray = []
-    if(selectedCities === null){
-        selectedCitiesArray = [];
+    const selectedLeaf = await AsyncStorage.getItem("selectedLeaf");
+    let selectedLeafArray = [];
+    if (selectedLeaf != null) {
+      selectedLeafArray = JSON.parse(selectedLeaf);
+    }
+    return selectedLeafArray;
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+const extractNames = (nodeObjs) =>{
+    let names = []
+    nodeObjs.map( (val) => names.push(val.name) )
+    return names;
+}
+
+export const getAllChildToPath =  (pathToNode, nodeObjsList = treeData) => {
+
+     console.log(pathToNode);
+      if (pathToNode.length === 0) {
+        // we have reached our path
+        return extractNames(nodeObjsList);
+      }
+
+    currentNodes = nodeObjsList;
+    currentLevelSelectedNode = currentNodes.find(
+      (nodeObj) => nodeObj.name === pathToNode[0]
+    );
+     
+    console.log("selected: " + currentLevelSelectedNode.name);
+    if (!currentLevelSelectedNode.hasOwnProperty('children')){
+            // no children means we are at leaf node
+            return extractNames(currentNodes)
+        }
+    
+    // recursively traverse below till some exit condition
+    let newPathToNode = []
+    if(pathToNode.length === 1){
+        newPathToNode = []
     }
     else{
-         selectedCitiesArray = JSON.parse(selectedCities);
+        newPathToNode = pathToNode.slice(1);
     }
-   
-    
-    console.log(selectedCitiesArray);
-    const cityKey = generateUniqueKey(country, province, city);
-    const newSelectedCitiesArray = [...selectedCitiesArray, cityKey];
-    console.log(newSelectedCitiesArray);
-    await AsyncStorage.setItem(
-      "selectedCities",
-      JSON.stringify(newSelectedCitiesArray)
-    );
-  } catch (e) {
-    console.log(e);
-  }
+    console.log("sendinf in: " + JSON.stringify(currentLevelSelectedNode["children"]));
+    console.log("new path in"+ JSON.stringify(newPathToNode))
+    return getAllChildToPath(newPathToNode,currentLevelSelectedNode['children'] )
 };
 
-export const toggleCitySelection = async (country, province, city) => {
-  const isAlreadySaved = await isCityPresent(country, province, city);
-  if (isAlreadySaved) {
-    removeCity(country, province, city);
-  } else {
-    addCity(country, province, city);
-  }
-};
-
-
-export const getAllSelectedCities = async () => {
+export const getGeoLocationInfo = async () => {
   try {
-    const selectedCities = await AsyncStorage.getItem("selectedCities");
-    let selectedCitiesArray = []
-    if(selectedCities  != null){
-        selectedCitiesArray = JSON.parse(selectedCities);
-    }
-    return selectedCitiesArray
+    const respose = await fetch(URLS.GEO_LOCATION_URL);
+    const data = await respose.json();
+    return data;
   } catch (e) {
     console.log(e);
   }
