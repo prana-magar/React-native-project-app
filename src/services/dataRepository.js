@@ -1,36 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { RectButton } from "react-native-gesture-handler";
 import { URLS } from "./urls";
-export const cityData = {
-  countries: [
-    {
-      name: "Canada",
-      provinces: [
-        {
-          name: "Ontario",
-          cities: [
-            {
-              name: "Toronto",
-            },
-          ],
-        },
-      ],
-    },
-    {
-      name: "Nepal",
-      provinces: [
-        {
-          name: "Bagmati",
-          cities: [
-            {
-              name: "Kathmandu",
-            },
-          ],
-        },
-      ],
-    },
-  ],
-};
+
 
 export const treeData = [
   {
@@ -72,26 +43,6 @@ export const treeData = [
   },
 ];
 
-export const getAllCountries = () => {
-  let countries = [];
-  cityData["countries"].map((countryObj) => countries.push(countryObj.name));
-  return countries;
-};
-
-export const getAllProvince = (country) => {
-  let countryObj = cityData["countries"].find(
-    (currCountry) => currCountry.name == country
-  );
-  if (countryObj === undefined) {
-    return [];
-  } else {
-    let provinces = [];
-    countryObj["provinces"].map((provinceObj) =>
-      provinces.push(provinceObj.name)
-    );
-    return provinces;
-  }
-};
 
 export const getAllLeaf = (country, province) => {
   let countryObj = cityData["countries"].find(
@@ -206,18 +157,19 @@ const extractNames = (nodeObjs) =>{
 
 
 export const getAllChildToPath =  (pathToNode, nodeObjsList = treeData) => {
-      console.log(JSON.stringify(pathToNode));
-            console.log(JSON.stringify(nodeObjsList));
 
       if (pathToNode.length === 0) {
         return nodeObjsList;
       }
+    console.log("path" + JSON.stringify(pathToNode));
+    console.log("objects" + JSON.stringify(nodeObjsList));
 
     let currentNodes = nodeObjsList;
     let currentLevelSelectedNode = currentNodes.find(
       (nodeObj) => nodeObj.name === pathToNode[0]
     );
      
+    console.log("current" + JSON.stringify(currentLevelSelectedNode));
     if (!currentLevelSelectedNode.hasOwnProperty('children')){
             // no children means we are at leaf node
             let updatedNodes = []
@@ -238,7 +190,6 @@ export const getAllChildToPath =  (pathToNode, nodeObjsList = treeData) => {
 const generateNodeData = async (leafKey,nodeName, isLeaf) => {
 
   let isLeafSelected = await isLeafPresent(leafKey);
-  console.log("CHECKING FRO:" + JSON.stringify(leafKey));
   if (isLeafSelected) {
     return { name: nodeName, isSelected: true ,  isLeaf: isLeaf};
   } else {
