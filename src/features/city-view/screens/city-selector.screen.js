@@ -9,59 +9,52 @@ import {
   getAllCities,
   toggleLeafSelection,
   getAllChildToPath,
+  getAllNodesOfPath,
 } from "../../../services/dataRepository";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { SelectorNavigation } from "../components/selector-navigation.component"
-import { Button } from 'react-native';
+import { Button } from "react-native-paper";
 import {OptionLister} from "../components/option-lister.component"
 
 
 export const CitySelectorScreen = () => {
-
-  const [currentLevel, setCurrentLevel] = useState(1)
-  const [displayOptions, setDisplayOptions] = useState(getAllCountries());
-  const [currentCountry, setCurrentCountry] = useState(null)
-  const [currentProvince, setCurrentProvince] = useState(null)
-
   const [pathToCurrentLevel, setpathToCurrentLevel] = useState([])
   const [currentNodes, setcurrentNodes] = useState([])
  
   useEffect(() => {
       setpathToCurrentLevel([])
-     
   }, [])
+  
 
-  const updateLeafSelection = () => {
-        toggleLeafSelection(pathToCurrentLevel);
-  }
-
-  const handleItemClick = (selectedValue) =>{
-      
-      setpathToCurrentLevel((prev) => {
-          if (prev[prev.length - 1] == selectedValue){
-              updateNodes();
-              return prev
-          }
-          else{
-              return [...prev, selectedValue];
-          } 
-        });
+  const handleItemClick = (selectedObj) =>{
+      if(!selectedObj.isLeaf){
+        setpathToCurrentLevel( (prev) => [...prev, selectedObj.name])
+      }
+      else{
+          toggleLeafSelection([...pathToCurrentLevel, selectedObj.name]);
+      }
+      updateNodes();
   }
 
   const updateNodes = () => {
-    let nodes = getAllChildToPath(pathToCurrentLevel);
-    console.log(nodes);
-    setcurrentNodes((prevNodes) => {
-      console.log("Prev nodes" + JSON.stringify(prevNodes));
-      console.log("New nodes" + JSON.stringify(nodes));
+    //let nodes = getAllChildToPath(pathToCurrentLevel);
+    const fetchAllNodes =   (pathToCurrentLevel)  => {
+         try{
+           getAllNodesOfPath(pathToCurrentLevel).then((nodes) => {
+           
+             setcurrentNodes((prevNodes) => {
+               return nodes;
+             });
+           });
 
-      if (JSON.stringify(prevNodes) == JSON.stringify(nodes)) {
-        console.log("inside");
-        // we got back same nodes that means we are in lead node. Save the selection
-        updateLeafSelection();
+         }
+         catch(e){
+           console.log(e)
+         }
+          
       }
-      return nodes;
-    });
+      
+    fetchAllNodes(pathToCurrentLevel);
   }
   
   useEffect(() => {
@@ -70,10 +63,7 @@ export const CitySelectorScreen = () => {
 
   return (
     <SafeArea>
-      <Text variant="label"> City Selector</Text>
-      <SelectorNavigation />
-      <Text> Choose a country</Text>
-      <Text> {JSON.stringify()}</Text>
+      <Text> Choose a Node</Text>
       <OptionLister items={currentNodes} onClick={handleItemClick} />
     </SafeArea>
   );

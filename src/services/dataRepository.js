@@ -32,37 +32,45 @@ export const cityData = {
   ],
 };
 
-export const treeData = [{
-  name: "Earth",
-  children: [
-    {
-      name: "Canada",
-      children: [
-        {
-          name: "Ontario",
-          children: [
-            {
-              name: "Toronto",
-            },
-          ],
-        },
-      ],
-    },
-    {
-      name: "Nepal",
-      children: [
-        {
-          name: "Bagmati",
-          children: [
-            {
-              name: "Kathmandu",
-            },
-          ],
-        },
-      ],
-    },
-  ],
-}];
+export const treeData = [
+  {
+    name: "Earth",
+    children: [
+      {
+        name: "Canada",
+        children: [
+          {
+            name: "Ontario",
+            children: [
+              {
+                name: "Toronto",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        name: "Nepal",
+        children: [
+          {
+            name: "Bagmati",
+            children: [
+              {
+                name: "Kathmandu",
+              },
+              {
+                name: "Bhaktapur",
+              },
+              {
+                name: "Lalitpur",
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  },
+];
 
 export const getAllCountries = () => {
   let countries = [];
@@ -93,7 +101,6 @@ export const getAllLeaf = (country, province) => {
     return [];
   }
 
-  console.log(countryObj);
   let provinceObj = countryObj["provinces"].find(
     (currProvince) => currProvince.name == province
   );
@@ -157,7 +164,6 @@ const addLeaf = async (leafKey) => {
       }
 
       const newSelectedLeafArray = [...selectedLeafKeysArray, leafKey];
-      console.log("added: " + JSON.stringify(newSelectedLeafArray));
       await AsyncStorage.setItem(
         "selectedLeaf",
         JSON.stringify(newSelectedLeafArray)
@@ -196,23 +202,26 @@ const extractNames = (nodeObjs) =>{
     return names;
 }
 
-export const getAllChildToPath =  (pathToNode, nodeObjsList = treeData) => {
 
-     console.log(pathToNode);
+
+
+export const getAllChildToPath =  (pathToNode, nodeObjsList = treeData) => {
+      console.log(JSON.stringify(pathToNode));
+            console.log(JSON.stringify(nodeObjsList));
+
       if (pathToNode.length === 0) {
-        // we have reached our path
-        return extractNames(nodeObjsList);
+        return nodeObjsList;
       }
 
-    currentNodes = nodeObjsList;
-    currentLevelSelectedNode = currentNodes.find(
+    let currentNodes = nodeObjsList;
+    let currentLevelSelectedNode = currentNodes.find(
       (nodeObj) => nodeObj.name === pathToNode[0]
     );
      
-    console.log("selected: " + currentLevelSelectedNode.name);
     if (!currentLevelSelectedNode.hasOwnProperty('children')){
             // no children means we are at leaf node
-            return extractNames(currentNodes)
+            let updatedNodes = []
+            return updatedNodes;
         }
     
     // recursively traverse below till some exit condition
@@ -223,9 +232,39 @@ export const getAllChildToPath =  (pathToNode, nodeObjsList = treeData) => {
     else{
         newPathToNode = pathToNode.slice(1);
     }
-    console.log("sendinf in: " + JSON.stringify(currentLevelSelectedNode["children"]));
-    console.log("new path in"+ JSON.stringify(newPathToNode))
     return getAllChildToPath(newPathToNode,currentLevelSelectedNode['children'] )
+};
+
+const generateNodeData = async (leafKey,nodeName, isLeaf) => {
+
+  let isLeafSelected = await isLeafPresent(leafKey);
+  console.log("CHECKING FRO:" + JSON.stringify(leafKey));
+  if (isLeafSelected) {
+    return { name: nodeName, isSelected: true ,  isLeaf: isLeaf};
+  } else {
+    return { name: nodeName, isSelected: false, isLeaf: isLeaf };
+  }
+};
+
+export const getAllNodesOfPath =  async (pathToNode) => {
+   let allNodes = [];
+   all_childs = getAllChildToPath(pathToNode);
+
+   for(let i= 0; i< all_childs.length; i++){
+     try{
+       let nodeName = all_childs[i].name;
+       let isLeaf = false
+       if( !all_childs[i].hasOwnProperty('children') ){
+          isLeaf = true
+       }
+       const leafKey = generateUniqueKey([...pathToNode, nodeName]);
+       allNodes.push( await generateNodeData(leafKey, nodeName, isLeaf))
+     }
+     catch(e){
+       console.log(e)
+     }
+   }
+   return allNodes
 };
 
 export const getGeoLocationInfo = async () => {
