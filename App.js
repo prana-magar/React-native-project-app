@@ -8,20 +8,23 @@ import { Icon } from "react-native-elements";
 import { AboutScreen } from "./src/features/city-view/screens/about.screen";
 import { SelectorScreen } from "./src/features/city-view/screens/selector.screen";
 import { ViewerScreen } from "./src/features/city-view/screens/viewer.screen";
+import { Ionicons } from '@expo/vector-icons';
+import { Entypo } from "@expo/vector-icons"; 
+
 
 const Tab = createBottomTabNavigator();
 
 const TAB_ICON = {
-  CitySelector: "rowing",
-  Viewer: "rowing",
-  About: "rowing",
+  Selector: "md-checkmark-circle",
+  Viewer: "apps-outline",
+  About: "at-outline",
 };
 
 const createScreenOptions = ({ route }) => {
   const iconName = TAB_ICON[route.name];
   return {
     tabBarIcon: ({ size, color }) => (
-      <Icon name={iconName} size={size} color={color} />
+      <Ionicons name={iconName} size={size} color={color} />
     ),
   };
 };
