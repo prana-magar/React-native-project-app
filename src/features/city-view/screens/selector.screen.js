@@ -6,6 +6,7 @@ import {
   getAllNodesOfPath,
 } from "../../../services/dataRepository";
 import { OptionLister } from "../components/option-lister.component";
+import { CenteredView } from "../components/location-card-styles";
 
 export const SelectorScreen = () => {
   const [pathToCurrentLevel, setpathToCurrentLevel] = useState([]);
@@ -43,8 +44,10 @@ export const SelectorScreen = () => {
 
   return (
     <SafeArea>
-      <Text> Choose a Node</Text>
-      <OptionLister items={currentNodes} onClick={handleItemClick} />
+      <CenteredView>
+        <Text> Choose a Node</Text>
+        <OptionLister items={currentNodes} onClick={handleItemClick} />
+      </CenteredView>
     </SafeArea>
   );
 };
