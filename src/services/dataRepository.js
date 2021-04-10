@@ -16,6 +16,63 @@ export const treeData = [
               {
                 name: "Toronto",
               },
+              {
+                name: "Barrie",
+              },
+              {
+                name: "Brockville",
+              },
+              {
+                name: "Burlington",
+              },
+            ],
+          },
+          {
+            name: "Alberta",
+            children: [
+              {
+                name: "Airdrie",
+              },
+              {
+                name: "Brooks",
+              },
+              {
+                name: "Camrose",
+              },
+            ],
+          },
+          {
+            name: "New Foundland",
+           
+          },
+        ],
+      },
+      {
+        name: "USA",
+        children: [
+          {
+            name: "Alabama",
+            children: [
+              {
+                name: "Birmingham",
+              },
+              {
+                name: "Montgomery",
+              },
+              {
+                name: "Huntsville",
+              },
+              {
+                name: "Auburn",
+                children: [
+                  {
+                    name: "Mobile",
+                  },
+                  {
+                    name: "Hoover",
+                  },
+                ],
+              },
             ],
           },
         ],
