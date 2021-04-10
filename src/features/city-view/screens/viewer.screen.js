@@ -1,6 +1,5 @@
 import React, { useContext, useState, useEffect } from "react";
 import { SafeArea } from "../../../components/utility/safe-area.component";
-import { Text } from "../../../components/typography/text.component";
 import {StyleSheet} from "react-native"
 import {
   getAllSelectedLeaf,
@@ -57,7 +56,7 @@ export const ViewerScreen = () => {
           latitude={geoInfo.latitude}
           longitude={geoInfo.longitude}
         />
-        <Spacer position="top" size="medium">
+        <Spacer place="top" size="medium">
           <SelectionListerCard items={selectedLeaf} />
         </Spacer>
       </View>

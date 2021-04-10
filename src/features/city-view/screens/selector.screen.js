@@ -73,7 +73,7 @@ export const SelectorScreen = () => {
       <CenteredView>
         <Text> Choose a Node</Text>
         {!isRoot && (
-          <Spacer position="top" space="medium">
+          <Spacer place="top" space="medium">
             <Button mode="contained" onPress={() => backOneLevelUp()}>
               Back
             </Button>

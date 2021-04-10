@@ -9,7 +9,7 @@ import { Spacer } from "../../../components/spacer/spacer.component";
 export const SelectedItem = ({ item }) => {
   return (
     <>
-      <Spacer position="top" space="medium">
+      <Spacer place="top" space="medium">
         <CenteredCard>
           <Card.Content>
             <CenteredView>
