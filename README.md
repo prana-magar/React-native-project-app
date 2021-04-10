@@ -25,7 +25,7 @@ Simple React Native App for demonstration
 
         The code will work for any tree structure with any level of depth. Tree can be unbalanced with one branch ending at n while any other branch ending at k : k > n or k< n
 
- ![alt text](https://github.com/prana-magar/React-native-project-app/blob/main/screenshots/RootNode.PNG?raw=true)
+ <img src="React-native-project-app/screenshots/RootNode.PNG" width="300">
 
  2. Viewer:
         Here you will be presented with two main sections:
